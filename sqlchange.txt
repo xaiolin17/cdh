@@ -1,0 +1,7 @@
+UPDATE t_view_board 
+SET `configure` = REPLACE(`configure`,'10.10.17.22','10.10.17.24')
+
+UPDATE `t_data_item` SET `icon` = replace (`icon`,'221.122.74.207:9001','101.254.163.139:9000') WHERE `icon` LIKE '%221.122.74.207:9001%'
+
+
+UPDATE `t_view_board` SET `img` = replace (`img`,'221.122.74.207:9001','101.254.163.139:9000') WHERE `img` LIKE '%221.122.74.207:9001%'
