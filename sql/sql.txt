@@ -1,0 +1,121 @@
+-- 1.
+-- MySQL通常使用GROUPBY(本质上是排序动作)完成DISTINCT操作
+CREATE INDEX Index_student_course ON Scores (`student`, `course`);
+
+SELECT
+	COUNT(DISTINCT student) AS '学生总数', COUNT(DISTINCT course) AS '科目总数'
+FROM
+	`Scores` 
+
+-- 2.
+-- GROUP BY、DISTINCT和聚合函数可走索引
+CREATE INDEX Index_course_student_score ON Scores (`course`, `student`, `score`);
+
+SELECT
+	course,
+	COUNT( DISTINCT student ) AS '参加考试的学生数量',
+	MAX(score) AS '最高分',
+	MIN(score) AS '最低分',
+	AVG(score) AS '平均分'
+FROM
+	`Scores` 
+GROUP BY
+	course
+
+
+-- 3.
+-- 子查询where条件student和score
+CREATE INDEX Index_student_course ON Scores (`student`, `course`);
+
+SELECT
+	* 
+FROM
+	`Scores` AS s1 
+WHERE
+	( SELECT COUNT( 1 ) 
+		FROM `Scores` AS s2 
+		WHERE s2.student = s1.student 
+		AND s2.score > s1.score ) < 3 
+ORDER BY
+	course
+	
+	
+-- 4.
+-- s1 where条件student
+-- 子查询`Scores` DISTINCT course
+-- 子查询s3 where条件score
+-- 子查询s2 GROUP BY student、DISTINCT s2.course
+CREATE INDEX Index_student_course ON Scores (`student`, `course`);
+ALTER TABLE `Scores` ADD INDEX Index_student(`student`);
+ALTER TABLE `Scores` ADD INDEX Index_course(`course`);
+ALTER TABLE `Scores` ADD INDEX Index_score(`score`);
+
+SELECT
+	COUNT(DISTINCT s1.student) 
+FROM
+	`Scores` AS s1 
+WHERE
+	student IN (
+	SELECT
+		student 
+	FROM
+		( SELECT student, COUNT( DISTINCT s2.course ) AS cou_count FROM `Scores` AS s2 GROUP BY student ) AS s_c_t,(
+		SELECT
+			COUNT( DISTINCT course ) AS scores_sum 
+		FROM
+			`Scores` 
+		) AS sco_sum_t 
+	WHERE
+	s_c_t.cou_count >= sco_sum_t.scores_sum - 1 AND student NOT IN (SELECT student FROM `Scores` AS s3 WHERE score <= 80))
+	
+	
+-- 5.
+-- 语句all_c_t查询course、student
+-- student where
+-- course where查询与排序走索引
+CREATE INDEX Index_student_course ON Scores (`student`, `course`);
+ALTER TABLE `Scores` ADD INDEX Index_student(`student`);
+ALTER TABLE `Scores` ADD INDEX Index_course(`course`);
+
+SELECT
+	all_c_t.course,
+	all_c_t.student 
+FROM
+	( SELECT * FROM ( SELECT DISTINCT course FROM `Scores` ) AS c CROSS JOIN ( SELECT DISTINCT student FROM `Scores` ) AS s ) AS all_c_t 
+WHERE
+	NOT EXISTS ( SELECT * FROM `Scores` AS s1 WHERE all_c_t.course = s1.course AND all_c_t.student = s1.student ) 
+ORDER BY
+	all_c_t.course
+
+
+
+-- 6.
+-- where条件score字段比较及排序
+CREATE INDEX Index_course_student_score ON Scores (`course`, `student`, `score`);
+ALTER TABLE `Scores` ADD INDEX Index_score(`score`);
+
+SELECT
+	pro.course,
+	pro.score AS '中位数'
+FROM
+	`Scores` AS pro,(
+	SELECT
+		s1.course,
+		s1.score,
+		COUNT(*) AS rank 
+	FROM
+		`Scores` AS s1,
+		`Scores` AS s2 
+	WHERE
+		s1.score < s2.score 
+		OR ( s1.score = s2.score AND s1.course <= s2.course ) 
+	GROUP BY
+		s1.course,
+		s1.score 
+	ORDER BY
+		rank 
+	) AS rank_t 
+WHERE
+	rank = ( SELECT ( COUNT(*) + 1 ) DIV 2 FROM `scores` ) 
+GROUP BY
+	pro.course
