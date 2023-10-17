@@ -900,19 +900,19 @@ uchar TypeForce(double &force_arr[], double close_, double close_1,int kdata_shi
 //+------------------------------------------------------------------+
 uchar TypeFractals(double &fractals_up_arr[], double &fractals_down_arr[], int kdata_shift)
   {
-   if(fractals_up_arr[kdata_shift] < 9E+15)
+   if(fractals_up_arr[kdata_shift+3] < 9E+15)
      {
       return 1;
      }
    else
      {
-      if(fractals_down_arr[kdata_shift] < 9E+15)
+      if(fractals_down_arr[kdata_shift+3] < 9E+15)
         {
          return 2;
         }
       else
         {
-         return 3;
+         return 0;
         }
      }
   }
@@ -1348,6 +1348,73 @@ uchar TypeVIDyA(double &vidya_arr[], double close_, double close_1, int kdata_sh
       else
         {
          return 3;
+        }
+     }
+  }
+//+------------------------------------------------------------------+
+
+//+------------------------------------------------------------------+
+//|                              pass                                    |
+//+------------------------------------------------------------------+
+uchar TypePass(double pass, int num)
+  {
+   if(num == 5)
+     {
+      if(pass == 0 || pass == 4)
+        {
+         return 1;
+        }
+      else
+        {
+         return 0;
+        }
+     }
+   else
+     {
+      if(num == 10)
+        {
+
+         if(pass == 0 || pass == 9)
+           {
+            return 3;
+           }
+         else
+           {
+            if(pass == 1 || pass == 8)
+              {
+               return 2;
+              }
+            else
+              {
+               if(pass == 2 || pass == 7)
+                 {
+                  return 1;
+                 }
+               else
+                 {
+                  return 0;
+                 }
+              }
+           }
+
+        }
+      else
+        {
+         if(pass == 0 || pass == 9)
+           {
+            return 2;
+           }
+         else
+           {
+            if(pass == 1 || pass == 8)
+              {
+               return 1;
+              }
+            else
+              {
+               return 0;
+              }
+           }
         }
      }
   }
