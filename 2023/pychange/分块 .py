@@ -154,33 +154,36 @@ replace_dict = {'0': 'z', '1': 'A', '2': 'B', '3': 'C', '4': 'D',
                 '10': 'J', '11': 'K', '12': 'L', '13': 'M', '14': 'N'}
 
 def traEvaTes(data_handle):
+
     # 剔除无效数据
     data_handle = data_handle.drop(drop_list, axis=1, inplace=False)
     # 剔除空数据
     data_handle = data_handle.dropna(axis=0)
+    # 筛选时去掉30M
+    data_handle = data_handle[[coll for coll in data_handle.columns if "_30M" not in coll]]
     print("当前文件数据：  ", data_handle.shape)
     # 数据统计
     print('data_handle.describe()\n', data_handle.describe())
-    # 类型转换
-    data_handle[col] = data_handle[col].astype(str)
-    data_handle[col] = data_handle[col].replace(replace_dict)
+    # # 类型转换
+    # data_handle[col] = data_handle[col].astype(str)
+    # data_handle[col] = data_handle[col].replace(replace_dict)
     # 特征和标签
     X = data_handle.iloc[:, :-1]
     Y = data_handle.iloc[:, -1]
-    # #标准化StandardScaler()
-    scaler = StandardScaler()
-    # 对指定列进行标准化
-    X_scaled = scaler.fit_transform((X[X.columns.difference(col)].astype(float)))
-    # 将标准化后的数据转换为 DataFrame
-    X_scaled_df = pd.DataFrame(X_scaled, columns=X.columns.difference(col))
-    # 合并标准化后的数据和其他列
-    X_merged = pd.concat([X_scaled_df, X[col]], axis=1)
+    # # 标准化StandardScaler()
+    # scaler = StandardScaler()
+    # # 对指定列进行标准化
+    # X_scaled = scaler.fit_transform((X[X.columns.difference(col)].astype(float)))
+    # # 将标准化后的数据转换为 DataFrame
+    # X_scaled_df = pd.DataFrame(X_scaled, columns=X.columns.difference(col))
+    # # 合并标准化后的数据和其他列
+    # X_merged = pd.concat([X_scaled_df, X[col]], axis=1)
     del data_handle  # 删除列表,释放内存
-    del X_scaled
-    del X_scaled_df
-    del X
+    # del X_scaled
+    # del X_scaled_df
+    # del X
 
-    return X_merged, Y
+    return X, Y
 
 """
 验证集与测试集数据
@@ -213,29 +216,30 @@ print("测试集")
 test_data = fileDataET(folder_path, '/test')
 X_test, Y_test = traEvaTes(test_data)
 # eval_pool
-eval_pool = Pool(X_test[:-25000], label=Y_test[:-25000], cat_features=col)
+eval_pool = Pool(X_test[:-20000], label=Y_test[:-20000])
 # test_pool
-test_pool = Pool(X_test[-25000:], cat_features=col)
+test_pool = Pool(X_test[-20000:])
 
 # 参数字典
 params = {
-    'iterations': 500,
-    'learning_rate': 0.008,      #**************************************
+    # 'random_seed': 1,
+    'iterations': 1000,
+    'learning_rate': 0.008,
     'depth': 10,
     # 减轻模型的过拟合程度
-    'l2_leaf_reg': 10,      #**************************************
+    'l2_leaf_reg': 10,
     # 用于训练每个基本模型（树）的样本数量
-    'subsample': 0.3,       #**************************************
+    'subsample': 0.3,
     # 控制每个基本模型（树）在分裂时考虑的特征数量
-    'colsample_bylevel':0.3,    #**************************************
+    'colsample_bylevel': 0.3,
     # 基本模型之间的相似性
-    'bagging_temperature': 0.3,     #**************************************
+    'bagging_temperature': 0.3,
     'loss_function': 'Logloss',
     'od_type': 'Iter',
-    'od_wait': 10,
+    'od_wait': 32,
     'class_weights': [1.66, 1],
     'eval_metric': 'AUC',
-    'one_hot_max_size': 19
+    'one_hot_max_size': 22
 }
 model = CatBoostClassifier(**params)
 
@@ -273,7 +277,7 @@ for file in file_list[::-1]:
             data_num = 0
             del X_train, Y_train
             # 数据准备
-            train_pool = Pool(res_X, label=res_Y, cat_features=col)
+            train_pool = Pool(res_X, label=res_Y)
             # 模型训练
             model.fit(train_pool, eval_set=eval_pool)
             # 训练数据重新加载
@@ -281,8 +285,30 @@ for file in file_list[::-1]:
 # 处理完所有CSV文件，模型已经训练完成
 # 保存模型
 print("保存模型")
+url_file = 'result/2/'
+# model.save_model('result/1/catboost_model_20231122.bin')
+# 将模型转换为ONNX格式
+#
+# from skl2onnx import convert_sklearn
+# from skl2onnx.common.data_types import FloatTensorType
+# initial_type = [('float_input', FloatTensorType([None, 4]))]
+# onx = convert_sklearn(model, initial_types=initial_type)
+# with open("logreg_iris.onnx", "wb") as f:
+#     f.write(onx.SerializeToString())
 
-model.save_model('result/1/catboost_model_20231122.bin')
+
+# Save model to ONNX-ML format
+model.save_model(
+    (url_file + "breast_cancer.onnx"),
+    format="onnx",
+    export_parameters={
+        'onnx_domain': 'ai.catboost',
+        'onnx_model_version': 1,
+        'onnx_doc_string': 'test model for BinaryClassification',
+        'onnx_graph_name': 'CatBoostModel_for_BinaryClassification'
+    }
+)
+
 # # 加载模型
 # loaded_model = CatBoostClassifier()
 # loaded_model.load_model('catboost_model_20231114.bin')
@@ -293,18 +319,18 @@ model.save_model('result/1/catboost_model_20231122.bin')
 print("测试... ...")
 y_pred = model.predict(test_pool)
 #混淆矩阵
-cmatrix = confusion_matrix(Y_test[-25000:], y_pred)
+cmatrix = confusion_matrix(Y_test[-20000:], y_pred)
 #test
-roc_auc = roc_auc_score(Y_test[-25000:], y_pred)
-accuracy = accuracy_score(Y_test[-25000:], y_pred)
-f1 = f1_score(Y_test[-25000:], y_pred)
-recall = recall_score(Y_test[-25000:], y_pred)
-precision = precision_score(Y_test[-25000:], y_pred)
+roc_auc = roc_auc_score(Y_test[-20000:], y_pred)
+accuracy = accuracy_score(Y_test[-20000:], y_pred)
+f1 = f1_score(Y_test[-20000:], y_pred)
+recall = recall_score(Y_test[-20000:], y_pred)
+precision = precision_score(Y_test[-20000:], y_pred)
 # 可视化
 plot=sns.heatmap(cmatrix)
 plt.show()
 print("保存测试结果")
-with open('result/1/evaluate_model.txt', 'w') as f:
+with open((url_file + 'evaluate_model.txt'), 'w') as f:
     # 将print的输出重定向到文件
     print(cmatrix, file=f)
     print("roc_auc:", roc_auc, "Accuracy:", accuracy, "f1:", f1, "recall:", recall, "precision:", precision, file=f)
@@ -316,10 +342,16 @@ for feature, importance in zip(X_test.columns, feature_importance):
     feature_dic[feature] = importance
 sorted_feature_dic = dict(sorted(feature_dic.items(), key=lambda x: x[1],reverse=True))
 print("保存权重结果")
-with open('result/1/feature_dic.txt', 'w') as f:
+with open((url_file + 'feature_dic.txt'), 'w') as f:
     # 将print的输出重定向到文件
     for key,value in sorted_feature_dic.items():
         print(key, value, file=f)
+
+# 保存参数字典
+print("保存参数字典")
+with open((url_file + 'params.txt'), 'w') as f:
+    # 将print的输出重定向到文件
+    print(params, file=f)
 
 
 # import pandas as pd
