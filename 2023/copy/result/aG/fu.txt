@@ -1,0 +1,1 @@
+['volume', 'frAMA', 'ad', 'rsi5', 'sar', 'osMA', 'momentum', 'ama', 'adx', 'adxWilder', 'force', 'atr5', 'bulls', 'bwmfi', 'lwma10', 'sma5', 'rsi14', 'ac', 'lwma5', 'dema', 'boll', 'chaikin', 'mfi', 'rvi', 'stdDev', 'slowk', 'smma10', 'macd', 'ema5', 'deMarker', 'interval', 'lips', 'cci', 'triX', 'smma5', 'atr10', 'obv', 'wpr', 'vidya', 'ao', 'bears', 'sma10', 'tema', 'ema10']

@@ -1,0 +1,1 @@
+{'iterations': 1000, 'learning_rate': 0.02, 'depth': 10, 'l2_leaf_reg': 20, 'subsample': 0.8, 'colsample_bylevel': 0.1, 'bagging_temperature': 0.1, 'loss_function': 'Logloss', 'od_type': 'Iter', 'od_wait': 36, 'class_weights': [1.66, 1], 'eval_metric': 'AUC', 'one_hot_max_size': 22}
