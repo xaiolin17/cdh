@@ -9,6 +9,8 @@ import MetaTrader5 as mt5
 import pytz
 import talib
 
+pd.set_option('display.max_columns', 500)  # number of columns to be displayed
+pd.set_option('display.width', 1500)  # max table width to display
 
 login = 76509142
 password = "76509142Qq@"
@@ -66,7 +68,7 @@ def Buy():
         # ATR 用于衡量价格波动性的指标
         rates_frame['ATR5'] = talib.ATR(rates_frame['high'], rates_frame['low'], rates_frame['close'], timeperiod=5)
 
-        lot = 0.1                                  # 交易量
+        lot = 0.01                                  # 交易量
         point = mt5.symbol_info(symbol).point       # 小数位数
         price = mt5.symbol_info_tick(symbol).ask    # 价格
         deviation = 300                             # 允许价格偏差
@@ -88,9 +90,9 @@ def Buy():
         # 显示有关程序端设置和状态的信息
         terminal_info_dict = mt5.terminal_info()._asdict()
         # 将词典转换为DataFrame和print
-        df_terminal_info = pd.DataFrame(list(terminal_info_dict.items()), columns=['property', 'value'])
+        # df_terminal_info = pd.DataFrame(list(terminal_info_dict.items()), columns=['property', 'value'])
         print("***程序端状态:")
-        print(df_terminal_info)
+        print(terminal_info_dict)
         # 发送交易请求
         result = mt5.order_send(request)
         # 检查执行结果
@@ -143,29 +145,30 @@ def monitor_file(file_path):
                                                     {'features': binary_data.reshape((1, -1))})
                     # label[0] <class 'numpy.int64'> probabilities[0] <class 'dict'>
                     if label[0] == 1:
-                        # 活动订单数
-                        orders_total = mt5.orders_total()
+                        # 订单数
+                        orders_total = mt5.positions_total()
+                        print("--->Buy orders_total", orders_total)
                         # 买操作
                         Buy()
                         """是否请求成功 比对操作后的订单数是否变化"""
-                        # 查看订单数
-                        orders_total_current = mt5.orders_total()
+                        # 查看buy后的订单数
+                        orders_total_current = mt5.positions_total()
+                        print("Buy--->orders_total_current", orders_total_current)
                         # 直到买入成功
                         while orders_total == orders_total_current:
                             print("上一次失败，将重新Buy")
                             # 买操作
                             Buy()
-                            orders_total_current = mt5.orders_total()
+                            orders_total_current = mt5.positions_total()
+                            print("--->Buy---> orders_total_current", orders_total_current)
 
                         # 获取交易品种的订单列表
-                        df_orders_get = mt5.orders_get()
-                        df_orders_get = pd.DataFrame(list(df_orders_get), columns=df_orders_get[0]._asdict().keys())
-                        df_orders_get.drop(
-                            ['time_done', 'time_done_msc', 'position_id', 'position_by_id', 'reason',
-                             'volume_initial', 'price_stoplimit'], axis=1, inplace=True)
-                        df_orders_get['time_setup'] = pd.to_datetime(df_orders_get['time_setup'], unit='s')
+                        positions_get = mt5.positions_get()
+                        df_positions_get = pd.DataFrame(list(positions_get), columns=positions_get[0]._asdict().keys())
+                        df_positions_get['time'] = pd.to_datetime(df_positions_get['time'], unit='s')
+                        df_positions_get.drop(['time_update', 'time_msc', 'time_update_msc', 'external_id'], axis=1, inplace=True)
                         print('******当前订单列表******')
-                        print(df_orders_get)
+                        print(df_positions_get)
                         # 执行操作后暂停一段时间后再次轮询
                     else:
                         print('未达buy条件！！！')
