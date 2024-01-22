@@ -1,0 +1,43 @@
+conda
+conda activate python36
+conda activate python37
+conda env list
+conda config --set env_prompt '(python310)'
+
+python -m ipykernel install --user --name=myenv --display-name "My Environment"
+myenv环境名称，My Environment 显示内核名称
+jupyter notebook并按下回车键
+
+pip  install  -i  https://mirrors.aliyun.com/pypi/simple/  torch==1.8.1    
+
+pip install D:\python\envs\python39\Scripts\TA_Lib-0.4.24-cp39-cp39-win_amd64.whl
+
+https://pypi.tuna.tsinghua.edu.cn/simple
+dijango
+pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/
+
+python manage.py runserver
+
+Name     : 保守类型H tang
+Type     : Forex Hedged USD
+Server   : MetaQuotes-Demo
+Login    : 5019645713
+Password : !xO2YqBw
+
+5017219430
++7EqDjXz
+
+DATABASES = {
+'default': {
+'ENGINE': 'django.db.backends.mysql',
+'NAME': 'zhiqiangdb',
+'USER': 'zq123',
+'PASSWORD': 'zq123',
+# 测试
+# 'HOST': '192.168.1.5',
+# 本机
+# 'HOST': '127.0.0.1',
+# 生产
+'HOST': '62.234.186.83',
+'PORT': '3306',
+},

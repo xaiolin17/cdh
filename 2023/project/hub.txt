@@ -1,0 +1,45 @@
+PyTorch Hub -------------------------
+
+LSTM (Long Short-Term Memory) 模型：
+	LSTM 是一种适用于序列数据的循环神经网络结构，可以用于金融时间序列预测和分析。PyTorch Hub 中的 pytorch/vision:v0.6.0 模型库中包含了 LSTM 相关的模型，可用于金融数据的建模和预测。
+
+Transformer 模型：
+	Transformer 架构被广泛应用于自然语言处理领域，对于金融文本数据的情感分析、事件预测等任务也具有良好的效果。可以在 pytorch/fairseq:roberta.large 和 pytorch/fairseq:bart.large 模块中找到预训练的 Transformer 模型。
+
+GAN (Generative Adversarial Network) 模型：
+	GAN 是一种用于生成合成数据的模型，可以在金融领域中用于生成合成的金融数据或进行异常检测。在 pytorch/vision:v0.6.0 模块中的 dcgan 模型可以用于这类任务。
+
+Prophet 模型：
+	Prophet 是 Facebook 开发的一种时间序列预测算法，可以用于金融领域中的股票预测、销售预测等任务。在 pytorch/forecasting:prophet 模块中提供了 Prophet 模型的实现。
+
+
+TensorFlow Hub ----------------------------
+
+NALU：
+	该模型是针对金融时间序列数据的神经算法单元（Neural Arithmetic Logic Unit）模型，具有良好的时间序列建模能力。
+
+BERT for Finance：
+	该模型基于BERT网络结构，通过在金融领域大规模预训练来提高模型性能，可以用于金融领域中的文本分类和情感分析任务等。
+
+AlphaGo 2500：
+	该模型是一个连接了多个强化学习智能体的深度神经网络，可以用于金融交易的决策过程中，通过LSTM层和卷积层学习到时间序列的特征。
+
+
+
+ElegantRL：
+	ElegantRL是一个由清华大学开发的强化学习库，它提供了一套简洁而优雅的API，方便用户进行强化学习算法的实现和实验。ElegantRL支持多种经典的强化学习算法，如DQN、DDPG、PPO等，并提供了一些常用的工具和环境。
+
+RLlib：
+	RLlib是由OpenAI开发的一个高性能分布式强化学习库。它提供了一套灵活且易于使用的API，支持多种强化学习算法，包括DQN、PPO、A3C等。RLlib还提供了一些高级功能，如分布式训练、自动调参和模型管理等，使得在大规模环境中进行强化学习研究更加方便和高效。
+
+SB3（Stable Baselines3）：
+	SB3是OpenAI的一个强化学习库，是RLlib的前身。它提供了一系列经典的强化学习算法的实现，包括A2C、PPO、SAC等。SB3注重代码的稳定性和可复现性，并提供了一些实用的工具和环境，帮助用户进行强化学习实验和研究。
+
+
+gym-mtsim：OpenAI Gym - MetaTrader 5 模拟器
+MtSim是MetaTrader 5交易平台的模拟器以及OpenAI Gym环境，用于基于强化学习的交易算法
+https://github.com/AminHP/gym-mtsim
+
+外汇和股票。AnyTrading 旨在提供一些 Gym 环境来改进和促进该领域基于 RL 的算法的开发和测试过程
+https://github.com/AminHP/gym-anytrading
+
