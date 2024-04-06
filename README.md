@@ -8,3 +8,5 @@ TA_Lib-0.4.28-cp311-cp311-win32.whl
 TA_Lib-0.4.28-cp311-cp311-win_amd64.whl  
 TA_Lib-0.4.28-cp312-cp312-win32.whl  
 TA_Lib-0.4.28-cp312-cp312-win_amd64.whl  
+### 更多
+###### https://www.cgohlke.com/
